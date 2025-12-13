@@ -42,7 +42,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN git clone https://github.com/jaehyunnn/ViTPose_pytorch.git /workspace/ViTPose_pytorch
 
 # ------------------------------------------------------------
-# Download model weights from Google Drive (BAKED INTO IMAGE)
+# Download model weights from Google Drive (NO RETRIES)
 # ------------------------------------------------------------
 RUN set -eux; \
     mkdir -p /workspace/models; \
@@ -53,17 +53,17 @@ RUN set -eux; \
         cd "$tmpdir"; \
         echo "Starting download for $filename from Google Drive"; \
         wget --quiet --save-cookies cookies.txt --keep-session-cookies --no-check-certificate \
-          "https://docs.google.com/uc?export=download&id=${fileid}" -O- \
-          | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1/p' > confirm.txt || true; \
-        confirm="$(cat confirm.txt 2>/dev/null || true)"; \
+        "https://docs.google.com/uc?export=download&id=${fileid}" -O- \
+        | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1/p' > confirm.txt; \
+        confirm="$(cat confirm.txt 2>/dev/null)"; \
         if [ -n "$confirm" ]; then \
-          echo "Confirm token found. Proceeding with download..."; \
-          wget --quiet --load-cookies cookies.txt --no-check-certificate \
+            echo "Confirm token found. Proceeding with download..."; \
+            wget --quiet --load-cookies cookies.txt --no-check-certificate \
             "https://docs.google.com/uc?export=download&confirm=${confirm}&id=${fileid}" \
             -O "$filename"; \
         else \
-          echo "No confirm token found. Direct download..."; \
-          wget --quiet --load-cookies cookies.txt --no-check-certificate \
+            echo "No confirm token found. Direct download..."; \
+            wget --quiet --load-cookies cookies.txt --no-check-certificate \
             "https://docs.google.com/uc?export=download&id=${fileid}" \
             -O "$filename"; \
         fi; \
@@ -71,59 +71,39 @@ RUN set -eux; \
         cd /workspace; \
         rm -rf "$tmpdir"; \
     }; \
-    # Debugging for each file download
+    \
     echo "Downloading cricket_ball_detector.pt"; \
     download_from_gdrive "1RFR7QNG0KS8u68IiB4ZR4fZAvyRwxyZ7" "cricket_ball_detector.pt"; \
+    \
     echo "Downloading bestBat.pt"; \
     download_from_gdrive "1MQR-tOl86pAWfhtUtg7PDDDmsTq0eUM1" "bestBat.pt"; \
+    \
     echo "Downloading vitpose-b-multi-coco.pth"; \
     download_from_gdrive "1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs" "vitpose-b-multi-coco.pth"; \
+    \
     echo "Downloading thirdlstm_shot_classifierupdated.keras"; \
     download_from_gdrive "1G_tJzRtSKaTJmoet0Cma8dCjgJCifTMu" "thirdlstm_shot_classifierupdated.keras"; \
+    \
     echo "Downloading 1.csv"; \
     download_from_gdrive "1aKrG286A-JQecHA2IhIuR03fVxd-yMsx" "1.csv"; \
+    \
     echo "Downloading cricket_t5_final_clean.zip"; \
     download_from_gdrive "1XheZOO2UO4ZVtupBSNXQwaT09-S-WWtB" "cricket_t5_final_clean.zip"; \
-    echo "Download completed for all files"; \
-    
-    # Debugging file size after download
+    \
     echo "Checking file size for cricket_t5_final_clean.zip"; \
     ls -lh /workspace/models/cricket_t5_final_clean.zip; \
     FILESIZE=$(stat --format=%s /workspace/models/cricket_t5_final_clean.zip); \
     echo "File size: $FILESIZE bytes"; \
-    
-    # Check if the file size is smaller than expected (800 MB as the minimum allowed)
-    if [ $FILESIZE -lt 800000000 ]; then \
-        echo "File is too small, download may have failed. File size: $FILESIZE bytes"; \
-        exit 1; \
-    fi;
-    
-    # Ensure the file exists before unzipping
-    if [ ! -f /workspace/models/cricket_t5_final_clean.zip ]; then \
-        echo "Error: File does not exist or was not saved correctly"; \
-        exit 1; \
-    fi;
-    
-    # Debugging unzipping
+    if [ $FILESIZE -lt 1000000000 ]; then echo "File is too small, download may have failed"; exit 1; fi; \
+    \
     echo "Unzipping cricket_t5_final_clean.zip"; \
     unzip /workspace/models/cricket_t5_final_clean.zip -d /workspace/models/cricket_t5_final_clean || { echo "Unzip failed"; exit 1; }; \
-    echo "Unzip successful"; \
-    
-    # Debugging listing the contents of the unzipped folder
+    \
     echo "Listing contents of /workspace/models/cricket_t5_final_clean:"; \
     ls -l /workspace/models/cricket_t5_final_clean; \
-    
-    # Ensure there are files in the unzipped folder
-    if [ "$(ls -A /workspace/models/cricket_t5_final_clean)" ]; then \
-        echo "Files successfully extracted"; \
-    else \
-        echo "No files extracted, unzip might have failed"; \
-        exit 1; \
-    fi;
-
-    # Debugging remove zip file
+    \
     echo "Removing zip file"; \
-    rm /workspace/models/cricket_t5_final_clean.zip || { echo "Failed to remove zip file"; exit 1; }; \
+    rm /workspace/models/cricket_t5_final_clean.zip; \
     echo "Zip file removed successfully"
 
 # ------------------------------------------------------------
