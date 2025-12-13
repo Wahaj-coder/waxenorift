@@ -39,8 +39,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ------------------------------------------------------------
 # Clone ViTPose repository and install dependencies
 # ------------------------------------------------------------
-RUN git clone https://github.com/jaehyunnn/ViTPose_pytorch.git /workspace/ViTPose_pytorch && \
-    pip install --no-cache-dir -r /workspace/ViTPose_pytorch/requirements.txt
+RUN git clone https://github.com/jaehyunnn/ViTPose_pytorch.git /workspace/ViTPose_pytorch
+
+#    pip install --no-cache-dir -r /workspace/ViTPose_pytorch/requirements.txt
 
 # ------------------------------------------------------------
 # Download model weights from Google Drive (BAKED INTO IMAGE)
@@ -92,5 +93,6 @@ EXPOSE 8000
 # Start Gunicorn with 2 workers (tune -w based on VRAM)
 # ------------------------------------------------------------
 CMD ["gunicorn", "-w", "2", "--threads", "2", "-b", "0.0.0.0:8000", "app:app"]
+
 
 
