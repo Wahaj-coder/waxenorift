@@ -72,62 +72,62 @@ RUN set -eux; \
         rm -rf "$tmpdir"; \
     }; \
     # Debugging for each file download
-    echo "Downloading cricket_ball_detector.pt"; \
-    download_from_gdrive "1RFR7QNG0KS8u68IiB4ZR4fZAvyRwxyZ7" "cricket_ball_detector.pt"; \
-    echo "Downloading bestBat.pt"; \
-    download_from_gdrive "1MQR-tOl86pAWfhtUtg7PDDDmsTq0eUM1" "bestBat.pt"; \
-    echo "Downloading vitpose-b-multi-coco.pth"; \
-    download_from_gdrive "1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs" "vitpose-b-multi-coco.pth"; \
-    echo "Downloading thirdlstm_shot_classifierupdated.keras"; \
-    download_from_gdrive "1G_tJzRtSKaTJmoet0Cma8dCjgJCifTMu" "thirdlstm_shot_classifierupdated.keras"; \
-    echo "Downloading 1.csv"; \
-    download_from_gdrive "1aKrG286A-JQecHA2IhIuR03fVxd-yMsx" "1.csv"; \
-    echo "Downloading cricket_t5_final_clean.zip"; \
-    download_from_gdrive "1XheZOO2UO4ZVtupBSNXQwaT09-S-WWtB" "cricket_t5_final_clean.zip"; \
-    echo "Download completed for all files"; \
+    echo "Downloading cricket_ball_detector.pt" && \
+    download_from_gdrive "1RFR7QNG0KS8u68IiB4ZR4fZAvyRwxyZ7" "cricket_ball_detector.pt" && \
+    echo "Downloading bestBat.pt" && \
+    download_from_gdrive "1MQR-tOl86pAWfhtUtg7PDDDmsTq0eUM1" "bestBat.pt" && \
+    echo "Downloading vitpose-b-multi-coco.pth" && \
+    download_from_gdrive "1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs" "vitpose-b-multi-coco.pth" && \
+    echo "Downloading thirdlstm_shot_classifierupdated.keras" && \
+    download_from_gdrive "1G_tJzRtSKaTJmoet0Cma8dCjgJCifTMu" "thirdlstm_shot_classifierupdated.keras" && \
+    echo "Downloading 1.csv" && \
+    download_from_gdrive "1aKrG286A-JQecHA2IhIuR03fVxd-yMsx" "1.csv" && \
+    echo "Downloading cricket_t5_final_clean.zip" && \
+    download_from_gdrive "1XheZOO2UO4ZVtupBSNXQwaT09-S-WWtB" "cricket_t5_final_clean.zip" && \
+    echo "Download completed for all files" && \
     
     # Debugging file size after download
-    echo "Checking file size for cricket_t5_final_clean.zip"; \
-    ls -lh /workspace/models/cricket_t5_final_clean.zip; \
-    FILESIZE=$(stat --format=%s /workspace/models/cricket_t5_final_clean.zip); \
-    echo "File size: $FILESIZE bytes"; \
+    echo "Checking file size for cricket_t5_final_clean.zip" && \
+    ls -lh /workspace/models/cricket_t5_final_clean.zip && \
+    FILESIZE=$(stat --format=%s /workspace/models/cricket_t5_final_clean.zip) && \
+    echo "File size: $FILESIZE bytes" && \
     
     # Relaxed file size check: Allow files >= 800MB (instead of 1GB)
     if [ $FILESIZE -lt 800000000 ]; then \
-        echo "File is too small, download may have failed. File size: $FILESIZE bytes"; \
+        echo "File is too small, download may have failed. File size: $FILESIZE bytes" && \
         exit 1; \
     fi;
 
     # Check available disk space before unzipping
-    echo "Checking available disk space"; \
-    df -h
-
+    echo "Checking available disk space" && \
+    df -h && \
+    
     # Verify the file exists and is not empty before unzipping
     if [ ! -f /workspace/models/cricket_t5_final_clean.zip ]; then \
-        echo "Error: File does not exist or was not saved correctly"; \
+        echo "Error: File does not exist or was not saved correctly" && \
         exit 1; \
     fi;
     
     # Debugging unzipping
-    echo "Unzipping cricket_t5_final_clean.zip"; \
-    unzip /workspace/models/cricket_t5_final_clean.zip -d /workspace/models/cricket_t5_final_clean || { echo "Unzip failed"; exit 1; }; \
-    echo "Unzip successful"; \
+    echo "Unzipping cricket_t5_final_clean.zip" && \
+    unzip /workspace/models/cricket_t5_final_clean.zip -d /workspace/models/cricket_t5_final_clean || { echo "Unzip failed"; exit 1; } && \
+    echo "Unzip successful" && \
     
     # Debugging listing contents of the unzipped folder
-    echo "Listing contents of /workspace/models/cricket_t5_final_clean:"; \
-    ls -l /workspace/models/cricket_t5_final_clean; \
+    echo "Listing contents of /workspace/models/cricket_t5_final_clean:" && \
+    ls -l /workspace/models/cricket_t5_final_clean && \
     
     # Ensure there are files in the directory after unzip
     if [ "$(ls -A /workspace/models/cricket_t5_final_clean)" ]; then \
         echo "Files successfully extracted"; \
     else \
-        echo "No files extracted, unzip might have failed"; \
+        echo "No files extracted, unzip might have failed" && \
         exit 1; \
     fi;
 
     # Debugging remove zip file
-    echo "Removing zip file"; \
-    rm /workspace/models/cricket_t5_final_clean.zip || { echo "Failed to remove zip file"; exit 1; }; \
+    echo "Removing zip file" && \
+    rm /workspace/models/cricket_t5_final_clean.zip || { echo "Failed to remove zip file"; exit 1; } && \
     echo "Zip file removed successfully"
 
 # ------------------------------------------------------------
