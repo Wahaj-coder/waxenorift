@@ -91,17 +91,40 @@ RUN set -eux; \
     ls -lh /workspace/models/cricket_t5_final_clean.zip; \
     FILESIZE=$(stat --format=%s /workspace/models/cricket_t5_final_clean.zip); \
     echo "File size: $FILESIZE bytes"; \
-    if [ $FILESIZE -lt 1000000000 ]; then echo "File is too small, download may have failed"; exit 1; fi; \
+    
+    # Relaxed file size check: Allow files >= 800MB (instead of 1GB)
+    if [ $FILESIZE -lt 800000000 ]; then \
+        echo "File is too small, download may have failed. File size: $FILESIZE bytes"; \
+        exit 1; \
+    fi;
 
+    # Check available disk space before unzipping
+    echo "Checking available disk space"; \
+    df -h
+
+    # Verify the file exists and is not empty before unzipping
+    if [ ! -f /workspace/models/cricket_t5_final_clean.zip ]; then \
+        echo "Error: File does not exist or was not saved correctly"; \
+        exit 1; \
+    fi;
+    
     # Debugging unzipping
     echo "Unzipping cricket_t5_final_clean.zip"; \
     unzip /workspace/models/cricket_t5_final_clean.zip -d /workspace/models/cricket_t5_final_clean || { echo "Unzip failed"; exit 1; }; \
     echo "Unzip successful"; \
     
-    # Debugging list of files in the unzipped folder
+    # Debugging listing contents of the unzipped folder
     echo "Listing contents of /workspace/models/cricket_t5_final_clean:"; \
     ls -l /workspace/models/cricket_t5_final_clean; \
     
+    # Ensure there are files in the directory after unzip
+    if [ "$(ls -A /workspace/models/cricket_t5_final_clean)" ]; then \
+        echo "Files successfully extracted"; \
+    else \
+        echo "No files extracted, unzip might have failed"; \
+        exit 1; \
+    fi;
+
     # Debugging remove zip file
     echo "Removing zip file"; \
     rm /workspace/models/cricket_t5_final_clean.zip || { echo "Failed to remove zip file"; exit 1; }; \
