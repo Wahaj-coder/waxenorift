@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install GPU-enabled PyTorch & TorchVision (CUDA 12.1)
 # ------------------------------------------------------------
 RUN pip install --no-cache-dir \
-    torch==2.1.0+cu121 \
+    torch==2.4.1+cu121 \
     torchvision==0.19.1+cu121 \
     --index-url https://download.pytorch.org/whl/cu121
 
@@ -92,4 +92,5 @@ EXPOSE 8000
 # Start Gunicorn with 2 workers (tune -w based on VRAM)
 # ------------------------------------------------------------
 CMD ["gunicorn", "-w", "2", "--threads", "2", "-b", "0.0.0.0:8000", "app:app"]
+
 
