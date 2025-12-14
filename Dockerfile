@@ -76,6 +76,8 @@ RUN pip install --no-cache-dir \
     torchvision==0.19.1+cu121 \
     --index-url https://download.pytorch.org/whl/cu121
 
+# Install TensorFlow GPU (CUDA 12.1 compatible version)
+RUN pip install --no-cache-dir tensorflow-gpu==2.12.0
 # ------------------------------------------------------------
 # Install the rest of your Python dependencies
 # ------------------------------------------------------------
@@ -101,3 +103,4 @@ EXPOSE 8000
 # Start Gunicorn with 2 workers (tune -w based on VRAM)
 # ------------------------------------------------------------
 CMD ["gunicorn", "-w", "2", "--threads", "2", "-b", "0.0.0.0:8000", "app:app"]
+
