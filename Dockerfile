@@ -14,13 +14,7 @@ WORKDIR /workspace
 RUN pip install --upgrade pip
 
 # ------------------------------------------------------------
-# Copy requirements first and install Python dependencies
-# ------------------------------------------------------------
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# ------------------------------------------------------------
-# System dependencies (ffmpeg REQUIRED for video processing)
+# Install system dependencies (ffmpeg REQUIRED for video processing)
 # ------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
@@ -34,6 +28,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------
+# Install Python dependencies
+# ------------------------------------------------------------
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ------------------------------------------------------------
+# Install Python wrapper for ffmpeg
+# ------------------------------------------------------------
+RUN pip install --no-cache-dir ffmpeg-python
+
+# ------------------------------------------------------------
 # Install gdown (Google Drive downloads)
 # ------------------------------------------------------------
 RUN pip install --no-cache-dir gdown
@@ -43,7 +48,6 @@ RUN pip install --no-cache-dir gdown
 # ------------------------------------------------------------
 RUN set -eux; \
     mkdir -p /workspace/models; \
-    \
     echo "Downloading cricket_ball_detector.pt"; \
     gdown --id 1RFR7QNG0KS8u68IiB4ZR4fZAvyRwxyZ7 -O /workspace/models/cricket_ball_detector.pt; \
     echo "Downloading bestBat.pt"; \
@@ -89,4 +93,3 @@ COPY app.py .
 # RunPod Serverless ENTRYPOINT
 # ------------------------------------------------------------
 CMD ["python", "app.py"]
-
