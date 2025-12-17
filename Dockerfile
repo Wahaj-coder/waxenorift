@@ -31,9 +31,9 @@ RUN set -eux; \
     gdown --id 1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs \
         -O /workspace/models/vitpose-b-multi-coco.pth; \
     \
-    echo "Downloading thirdlstm_shot_classifierupdated.keras"; \
-    gdown --id 1G_tJzRtSKaTJmoet0Cma8dCjgJCifTMu \
-        -O /workspace/models/thirdlstm_shot_classifierupdated.keras; \
+    echo "Downloading thirdlstm_tf12.keras"; \
+    gdown --id 1-7CLSKgHjMWYCLaqu4yp4K0RV8WrIkzc \
+        -O /workspace/models/thirdlstm_tf12.keras; \
     \
     echo "Downloading 1.csv"; \
     gdown --id 1aKrG286A-JQecHA2IhIuR03fVxd-yMsx \
@@ -67,4 +67,5 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 
 CMD ["python", "src/handler.py"]
+
 
