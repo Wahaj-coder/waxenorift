@@ -1,5 +1,4 @@
 import os
-
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -30,7 +29,7 @@ def load_models():
     """
     Load ALL models once at worker startup.
 
-    - TF 2.12 safe
+    - TF 2.x safe
     - No batch_shape usage
     - LSTM weights-only loading
     - Exact architecture match to training model
@@ -48,7 +47,7 @@ def load_models():
     _require_file(BAT_MODEL_PATH, "BAT_MODEL (.pt)")
     _require_file(PERSON_MODEL_PATH, "PERSON_MODEL yolov8n (.pt)")
     _require_file(VITPOSE_CKPT_PATH, "ViTPose checkpoint (.pth)")
-    _require_file(LSTM_MODEL_PATH, "LSTM weights (.weights.h5)")
+    _require_file(LSTM_MODEL_PATH, "LSTM weights (.h5)")
     _require_file(REF_CSV_PATH, "Reference CSV (1.csv)")
     _require_file(
         os.path.join(LLM_MODEL_DIR, "config.json"),
@@ -76,75 +75,40 @@ def load_models():
     print("✅ ViTPose loaded")
 
     # -----------------------------------------------------
-    # LSTM (EXACT MATCH to training summary)
+    # LSTM (MATCHES .h5 layer names)
     # -----------------------------------------------------
-    lstm_model = tf.keras.Sequential(
-        [
-            tf.keras.layers.Input(
-                shape=(WINDOW_SIZE, LSTM_EXPECTED_FEATURES),
-                name="input_layer"
-            ),
+    lstm_model = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(WINDOW_SIZE, LSTM_EXPECTED_FEATURES), name="input_layer"),
 
-            # lstm_4
-            tf.keras.layers.LSTM(
-                256,
-                return_sequences=True,
-                name="lstm_4"
-            ),
-            tf.keras.layers.BatchNormalization(name="batch_normalization_4"),
-            tf.keras.layers.Dropout(0.2, name="dropout_6"),
+        # LSTM layers
+        tf.keras.layers.LSTM(256, return_sequences=True, name="lstm"),
+        tf.keras.layers.BatchNormalization(name="batch_normalization"),
+        tf.keras.layers.Dropout(0.2, name="dropout"),
 
-            # lstm_5
-            tf.keras.layers.LSTM(
-                128,
-                return_sequences=False,
-                name="lstm_5"
-            ),
-            tf.keras.layers.BatchNormalization(name="batch_normalization_5"),
-            tf.keras.layers.Dropout(0.2, name="dropout_7"),
+        tf.keras.layers.LSTM(128, return_sequences=False, name="lstm_1"),
+        tf.keras.layers.BatchNormalization(name="batch_normalization_1"),
+        tf.keras.layers.Dropout(0.2, name="dropout_1"),
 
-            # Dense layers
-            tf.keras.layers.Dense(
-                64,
-                activation="relu",
-                name="dense_4"
-            ),
-            tf.keras.layers.Dropout(0.2, name="dropout_8"),
-
-            # IMPORTANT: final Dense has NO activation (linear)
-            tf.keras.layers.Dense(
-                len(LABEL_CLASSES),
-                name="dense_5"
-            ),
-        ]
-    )
+        # Dense layers
+        tf.keras.layers.Dense(64, activation="relu", name="dense"),
+        tf.keras.layers.Dropout(0.2, name="dropout_2"),
+        tf.keras.layers.Dense(len(LABEL_CLASSES), activation="softmax", name="dense_1")
+    ])
 
     # Explicit build (critical for weights loading)
-    lstm_model.build(
-        input_shape=(None, WINDOW_SIZE, LSTM_EXPECTED_FEATURES)
-    )
+    lstm_model.build(input_shape=(None, WINDOW_SIZE, LSTM_EXPECTED_FEATURES))
 
-    # Load weights (TF 2.12 compatible)
+    # Load weights (weights-only .h5)
     lstm_model.load_weights(LSTM_MODEL_PATH)
-
     print("✅ LSTM weights loaded")
 
     # -----------------------------------------------------
     # T5 (offline)
     # -----------------------------------------------------
-    tokenizer = AutoTokenizer.from_pretrained(
-        LLM_MODEL_DIR,
-        local_files_only=True
-    )
-
-    t5_model = (
-        AutoModelForSeq2SeqLM
-        .from_pretrained(LLM_MODEL_DIR, local_files_only=True)
-        .to(DEVICE)
-        .eval()
-    )
-
+    tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_DIR, local_files_only=True)
+    t5_model = AutoModelForSeq2SeqLM.from_pretrained(LLM_MODEL_DIR, local_files_only=True).to(DEVICE).eval()
     print("✅ T5 loaded")
+
     print("✅ Model loading done.")
 
 
@@ -158,7 +122,7 @@ def adaptive_square_crop(frame, target_size=CROP_SIZE):
     size = min(h, w)
     x1 = (w - size) // 2
     y1 = (h - size) // 2
-    cropped = frame[y1 : y1 + size, x1 : x1 + size]
+    cropped = frame[y1:y1+size, x1:x1+size]
     return cv2.resize(cropped, (target_size, target_size))
 
 
