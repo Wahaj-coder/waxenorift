@@ -18,7 +18,7 @@ torch==2.0.1+cu118
 torchvision==0.15.2+cu118
 
 # YOLO
-ultralytics==8.0.196   # 8.3.x pulls NumPy 2.x → breaks TF
+ultralytics==8.3.239   # 8.3.x pulls NumPy 2.x → breaks TF
 
 # NLP
 tokenizers==0.13.3
@@ -29,3 +29,4 @@ Flask==2.3.3
 
 # System
 ffmpeg==1.4
+
