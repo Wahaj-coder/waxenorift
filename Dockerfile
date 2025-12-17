@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.8-slim
 
 WORKDIR /workspace
 
@@ -72,4 +72,5 @@ COPY src/ ./src/
 
 # Set entrypoint
 CMD ["python", "src/handler.py"]
+
 
