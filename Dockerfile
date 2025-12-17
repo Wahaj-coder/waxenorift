@@ -34,9 +34,9 @@ RUN set -eux; \
     gdown --id 1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs \
         -O /workspace/models/vitpose-b-multi-coco.pth; \
     \
-    echo "Downloading thirdlstm_weights.h5"; \
-    gdown --id 1-7CLSKgHjMWYCLaqu4yp4K0RV8WrIkzc \
-        -O /workspace/models/thirdlstm_weights.h5; \
+    echo "Downloading thirdlstm.weights.h5"; \
+    gdown --id 12ZJHVQ4ew5WsNlyo6iTDTH4AH1cN4pLX \
+        -O /workspace/models/thirdlstm.weights.h5; \
     \
     echo "Downloading 1.csv"; \
     gdown --id 1aKrG286A-JQecHA2IhIuR03fVxd-yMsx \
@@ -72,3 +72,4 @@ COPY src/ ./src/
 
 # Set entrypoint
 CMD ["python", "src/handler.py"]
+
