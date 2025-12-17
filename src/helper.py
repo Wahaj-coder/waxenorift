@@ -57,7 +57,6 @@ def load_models():
     # LSTM
     lstm_model = tf.keras.models.load_model(LSTM_MODEL_PATH)
     print("✅ LSTM loaded")
-
     # T5 (offline)
     tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_DIR, local_files_only=True)
     t5_model = (
