@@ -34,7 +34,7 @@ def load_models():
     _require_file(BAT_MODEL_PATH, "BAT_MODEL (.pt)")
     _require_file(PERSON_MODEL_PATH, "PERSON_MODEL yolov8n (.pt)")
     _require_file(VITPOSE_CKPT_PATH, "ViTPose checkpoint (.pth)")
-    _require_file(LSTM_MODEL_PATH, "LSTM model (.keras)")
+    _require_file(LSTM_MODEL_PATH, "LSTM weights (.h5)")
     _require_file(REF_CSV_PATH, "Reference CSV (1.csv)")
     _require_file(
         os.path.join(LLM_MODEL_DIR, "config.json"), "T5 model dir (config.json)"
@@ -55,8 +55,22 @@ def load_models():
     print("✅ ViTPose loaded")
 
     # LSTM
-    lstm_model = tf.keras.models.load_model(LSTM_MODEL_PATH)
+    # Rebuild architecture to match your saved model
+    lstm_model = tf.keras.Sequential([
+        tf.keras.layers.LSTM(256, return_sequences=True, input_shape=(WINDOW_SIZE, LSTM_EXPECTED_FEATURES)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.LSTM(128),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(64, activation="relu"),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(len(LABEL_CLASSES), activation="softmax")
+    ])
+    # Load weights only (TF 2.12 compatible)
+    lstm_model.load_weights(LSTM_MODEL_PATH)
     print("✅ LSTM loaded")
+
     # T5 (offline)
     tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_DIR, local_files_only=True)
     t5_model = (
