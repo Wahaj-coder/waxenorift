@@ -2,6 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /workspace
 
+# System dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     git \
@@ -11,8 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     unzip \
+    libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# gdown for Google Drive downloads
 RUN pip install --no-cache-dir gdown
 
 # Download ALL model weights (OFFLINE, FAIL FAST)
@@ -31,9 +34,9 @@ RUN set -eux; \
     gdown --id 1mHoFS6PEGGx3E0INBdSfFyUr5kUtOUNs \
         -O /workspace/models/vitpose-b-multi-coco.pth; \
     \
-    echo "Downloading thirdlstm_tf12.keras"; \
+    echo "Downloading thirdlstm_weights.h5"; \
     gdown --id 1-7CLSKgHjMWYCLaqu4yp4K0RV8WrIkzc \
-        -O /workspace/models/thirdlstm_tf12.keras; \
+        -O /workspace/models/thirdlstm_weights.h5; \
     \
     echo "Downloading 1.csv"; \
     gdown --id 1aKrG286A-JQecHA2IhIuR03fVxd-yMsx \
@@ -54,18 +57,18 @@ RUN set -eux; \
     \
     echo "All models downloaded successfully"
 
-RUN apt-get update && apt-get install -y libgeos-dev
-
+# Copy requirements.txt
 COPY requirements.txt .
 
+# Ensure pip & setuptools are up-to-date
 RUN python -m ensurepip --upgrade
-
 RUN python -m pip install --upgrade setuptools
 
+# Install Python dependencies
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
+# Copy project source
 COPY src/ ./src/
 
+# Set entrypoint
 CMD ["python", "src/handler.py"]
-
-
