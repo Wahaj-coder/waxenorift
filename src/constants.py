@@ -5,8 +5,7 @@ import torch
 
 # PATHS & GLOBAL CONSTANTS (RUNPOD-FRIENDLY)
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"✅ Using device: {DEVICE}")
+DEVICE = None
 
 MODELS_ROOT = "/workspace/models"
 
